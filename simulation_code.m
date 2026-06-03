@@ -1,3 +1,40 @@
+% Reciprocal TFH-B Cell Dynamics Shape Selection in the Germinal Center
+%
+% This script runs a stochastic simulation of coupled germinal center
+% B cell and T follicular helper (TFH) cell dynamics. 
+
+% The main model parameters are defined in the "Parameters" section below.
+% Running this script produces simulation trajectories and summary
+% statistics for each replicate.
+%
+% Output:
+%   out is a cell array with one entry per replicate.
+%
+%   For replicate rr:
+%
+%       out{rr}{1} = Bout
+%           B cell states saved every Uday days. Each entry is a cell array
+%           containing individual B cells. Column 1 gives the affinity class;
+%           column 2 gives the lineage/mutation identifier.
+%
+%       out{rr}{2} = Tout
+%           TFH clone abundances saved every Uday days.
+%           Rows correspond to TFH clones and columns correspond to timepoints.
+%
+%       out{rr}{3} = e_out
+%           Mean affinity shift over time, relative to the initial mean affinity.
+%
+%       out{rr}{4} = lineage_count
+%           Number of B cells descended from each initial lineage over time.
+%           Rows correspond to lineages and columns correspond to timepoints.
+%
+%       out{rr}{5} = shannon_node
+%           Effective number of unique mutation-defined B cell clones over time,
+%           computed as the inverse Simpson index.
+%
+% Required MATLAB toolbox:
+%   Statistics and Machine Learning Toolbox, for binornd.
+
 clear; clc
 
 % =========================================================
@@ -7,9 +44,9 @@ clear; clc
 % Simulation
 N_aff  = 150;          % number of affinity classes
 N_T    = 3;            % number of TFH clones
-Tend   = 35*24;        % duration (hours)
+Tend   = 14*24;        % duration (hours)
 dt     = 3e-2;         % timestep (hours)
-Rep    = 1;            % number of replicates
+Rep    = 3;            % number of replicates
 
 M      = round(Tend/dt) + 1;
 t_days = (0:M-1) * dt / 24;
@@ -32,7 +69,7 @@ ppos  = 0.05;          % probability mutation is beneficial
 
 % Antigen and TFH sensitivity
 alpha_A0 = 1000 * del_B0;
-s_vec    = ones(N_T,1);
+s_vec    = [2,3,4]'; % NT x 1 vector
 
 % Initial lineage labels
 N_lineages = 50;
@@ -81,7 +118,7 @@ for rr = 1:Rep
     % Initialize TFH cells
     % -----------------------------
     T = zeros(N_T, M);
-    T(1,1) = T0;
+    T(:,1) = T0;
 
     % -----------------------------
     % Outputs
@@ -209,8 +246,14 @@ for rr = 1:Rep
             drawnow limitrate
         end
     end
-
-    out{rr} = lineage_count;
+    
+    Btemp  = Bcc(:,M);
+    nbar     = sum(Btemp .* nvec) / sum(Btemp);
+    e_out = eps*([n_av(1:ind_update:end)',nbar]-n_av(1));
+    Bout = B(1:ind_update:end)';
+    Tout = T(:,1:ind_update:end);
+    
+    out{rr} = {Bout, Tout, e_out, lineage_count', shannon_node'};
 end
 
 % =========================================================
