@@ -52,18 +52,6 @@ After modifying parameters, rerun:
 
 run main_simulation.m
 
-## Model Description
-
-The model simulates coupled germinal center B cell and T follicular helper (TFH) cell dynamics, including:
-- Antigen acquisition
-- TFH-mediated selection
-- B cell proliferation and apoptosis
-- Somatic hypermutation
-- Clonal lineage evolution
-- Reciprocal TFH-B cell feedback
-
-Simulation outputs include population dynamics, affinity distributions, lineage abundances, and diversity statistics.
-
 ## Contact
 
 Andrew G. T. Pyo
