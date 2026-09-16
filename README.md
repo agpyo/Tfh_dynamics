@@ -25,7 +25,7 @@ Typical installation time: less than 1 minute.
 
 Run the main simulation script:
 
-run main_simulation.m
+run simulation_code.m
 
 Model parameters can be modified at the beginning of the script.
 
